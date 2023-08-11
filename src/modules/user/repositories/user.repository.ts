@@ -1,31 +1,51 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { GameEntry, Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserDto } from '../dto';
 
 @Injectable()
 export class UserRepository {
-	constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
-	async retrieveOneById(id: number): Promise<User> {
-		return this.prismaService.user.findUniqueOrThrow({ where: { id } });
-	}
+  async getById(id: number): Promise<User> {
+    return this.prismaService.user.findUniqueOrThrow({
+      where: { id },
+      include: { roles: true },
+    });
+  }
 
-	async retrieveOneByEmailOrUsername(emailOrUsername: string): Promise<User> {
-		return this.prismaService.user.findFirstOrThrow({
-			where: {
-				OR: [{ username: emailOrUsername }, { email: emailOrUsername }]
-			}
-		});
-	}
+  async getByEmailOrUsername(emailOrUsername: string): Promise<User> {
+    return this.prismaService.user.findFirstOrThrow({
+      where: {
+        OR: [{ username: emailOrUsername }, { email: emailOrUsername }],
+      },
+      include: { roles: true },
+    });
+  }
 
-	async retrieveMany(where: Prisma.UserWhereInput): Promise<User[]> {
-		return this.prismaService.user.findMany({ where });
-	}
+  async getByWebsocketId(websocketId: string): Promise<User> {
+    return this.prismaService.user.findUnique({ where: { websocketId } });
+  }
 
-	async createOne(createUserDto: CreateUserDto) {
-		return this.prismaService.user.create({
-			data: CreateUserDto.toUser(createUserDto)
-		});
-	}
+  async getManyBy(
+    where: Prisma.UserWhereInput,
+  ): Promise<(User & { games: GameEntry[] })[]> {
+    return this.prismaService.user.findMany({
+      where,
+      include: { roles: true, games: true },
+    });
+  }
+
+  async createOne(user: Prisma.UserCreateInput): Promise<User> {
+    return this.prismaService.user.create({
+      data: user,
+    });
+  }
+
+  async updateOne(id: number, user: Prisma.UserUpdateInput): Promise<User> {
+    return this.prismaService.user.update({
+      include: { roles: true },
+      where: { id },
+      data: user,
+    });
+  }
 }

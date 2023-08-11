@@ -11,8 +11,13 @@ async function main() {
 			username: 'alice',
 			email: 'alice@prisma.io',
 			password: await bcrypt.hash('alice', salt),
-			first_name: 'Alice',
-			last_name: 'Charles'
+			firstName: 'Alice',
+			lastName: 'Charles',
+			roles: {
+				createMany: {
+					data: { name: 'USER' }
+				}
+			}
 		},
 	});
 
@@ -23,8 +28,13 @@ async function main() {
 			username: 'bob',
 			email: 'bob@prisma.io',
 			password: await bcrypt.hash('bob', salt),
-			first_name: 'Bob',
-			last_name: 'Calvin',
+			firstName: 'Bob',
+			lastName: 'Calvin',
+			roles: {
+				createMany: {
+					data: { name: 'USER' }
+				}
+			}
 		},
 	});
 
@@ -35,8 +45,13 @@ async function main() {
 			username: 'admin',
 			email: 'admin@prisma.io',
 			password: await bcrypt.hash('admin', salt),
-			first_name: 'Admin',
-			last_name: 'Admin'
+			firstName: 'Admin',
+			lastName: 'Admin',
+			roles: {
+				createMany: {
+					data: [{ name: 'USER' }, { name: 'ADMIN' }]
+				}
+			}
 		}
 	})
 

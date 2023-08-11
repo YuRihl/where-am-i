@@ -28,7 +28,7 @@ export class EnvironmentVariables {
 
 	@IsString()
 	@IsNotEmpty()
-	DB_PASSSWORD: string;
+	DB_PASSWORD: string;
 
 	@IsString()
 	@IsNotEmpty()
@@ -41,6 +41,14 @@ export class EnvironmentVariables {
 	@IsString()
 	@IsNotEmpty()
 	JWT_EXPIRES_IN: string;
+
+	@IsString()
+	@IsNotEmpty()
+	GOOGLE_CLIENT_ID!: string;
+
+	@IsString()
+	@IsNotEmpty()
+	GOOGLE_CLIENT_SECRET!: string;
 }
 
 export function validate(config: Record<string, unknown>) {
@@ -52,6 +60,7 @@ export function validate(config: Record<string, unknown>) {
 	const errors = validateSync(validatedConfig, { skipMissingProperties: false });
 
 	if (errors.length > 0) {
+		console.error(errors.toString());
 		throw new Error(errors.toString());
 	}
 

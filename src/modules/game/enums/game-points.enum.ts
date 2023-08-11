@@ -1,0 +1,5 @@
+export enum GamePoints {
+  MINIMUM_POINTS = 0,
+  MAXIMUM_POINTS = 5000,
+  POINTS_CONSTANT = 2000,
+}

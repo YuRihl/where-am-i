@@ -1,45 +1,91 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  Controller,
+  Get,
+  HttpException,
+  InternalServerErrorException,
+  Param,
+  ParseIntPipe,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { Prisma, User } from '@prisma/client';
+import { Request } from 'express';
+import { Roles } from 'src/decorators';
+import { JwtAuthGuard, RolesGuard } from 'src/guards';
+import { ReturnUserDto } from './dto';
+import { UserRole } from './enums';
 import { UserService } from './user.service';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
-	constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
-	@Post()
-	create(@Body() createUserDto: CreateUserDto) {
-		return this.userService.create(createUserDto);
-	}
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Get()
+  async getAllUsers(where: Prisma.UserWhereInput): Promise<User[]> {
+    try {
+      return await this.userService.getAll(where);
+    } catch (error) {
+      console.error(error);
 
-	@Get()
-	retrieveUsers(where: Prisma.UserWhereInput) {
-		try {
-			return this.userService.retrieveUsers(where);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	}
+      if (error instanceof HttpException) throw error;
 
-	@Get(':id')
-	findOne(@Param('id', new ParseIntPipe()) id: number) {
-		try {
-			return this.userService.retrieveUserById(id);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	}
+      throw new InternalServerErrorException(error);
+    }
+  }
 
-	@Patch(':id')
-	update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-		return this.userService.update(+id, updateUserDto);
-	}
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  async getProfile(@Req() req: Request): Promise<ReturnUserDto> {
+    try {
+      return ReturnUserDto.toReturnUserDto(req.user as User);
+    } catch (error) {
+      console.error(error);
 
-	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.userService.remove(+id);
-	}
+      if (error instanceof HttpException) throw error;
+
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  @Get(':id')
+  async getUserById(
+    @Param('id', new ParseIntPipe()) id: number,
+  ): Promise<User> {
+    try {
+      return await this.userService.getById(id);
+    } catch (error) {
+      console.error(error);
+
+      if (error instanceof HttpException) throw error;
+
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  // @Patch(':id')
+  // async updateUserById(
+  //   @Param('id', new ParseIntPipe()) id: number,
+  //   @Body() updateUserDto: UpdateUserDto,
+  // ): Promise<User> {
+  //   try {
+  //     return await this.userService.updateById(id, updateUserDto);
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw error;
+  //   }
+  // }
+
+  // @Delete(':id')
+  // async deleteUserById(
+  //   @Param('id', new ParseIntPipe()) id: number,
+  // ): Promise<void> {
+  //   try {
+  //     await this.userService.deleteById(id);
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw error;
+  //   }
+  // }
 }

@@ -5,8 +5,9 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 
 @Module({
-	controllers: [UserController],
-	providers: [UserService, UserRepository],
-	imports: [PrismaModule]
+  controllers: [UserController],
+  providers: [UserService, UserRepository],
+  imports: [PrismaModule],
+  exports: [UserService],
 })
-export class UserModule { }
+export class UserModule {}

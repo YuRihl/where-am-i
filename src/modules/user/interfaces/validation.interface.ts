@@ -1,9 +1,9 @@
-import { IStringValidation } from "src/interfaces";
+import { IStringValidation } from 'src/interfaces';
 
 export interface IValidation {
-	username: IStringValidation;
-	email: IStringValidation;
-	password: IStringValidation;
-	firstName: IStringValidation;
-	lastName: IStringValidation;
+  username: IStringValidation;
+  email: IStringValidation;
+  password: IStringValidation;
+  firstName: IStringValidation;
+  lastName: IStringValidation;
 }
